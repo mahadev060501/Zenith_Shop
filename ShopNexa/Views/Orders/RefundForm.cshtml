@@ -1,0 +1,333 @@
+@model Order
+@{
+    ViewData["Title"] = "Request Refund";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+
+    @@keyframes zenith-fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes ripple {
+        from {
+            transform: scale(0);
+            opacity: 0.4;
+        }
+        to {
+            transform: scale(2.8);
+            opacity: 0;
+        }
+    }
+
+    .refund-form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(15, 23, 42, 0.18);
+        padding: 40px;
+        margin: 40px auto;
+        max-width: 600px;
+        animation: zenith-fade-in-up 0.45s ease-out;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .form-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        border-left: 4px solid #667eea;
+    }
+
+    .form-label {
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #111827;
+        margin-bottom: 10px;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 12px;
+        border-radius: 10px;
+        border: 2px solid #e5e7eb;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.15rem rgba(102, 126, 234, 0.3);
+        outline: none;
+        transform: translateY(-1px);
+    }
+
+    .form-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='%23667eea' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.2 5.5L8 10.3l4.8-4.8L14 6.7 8 12.7 2 6.7l1.2-1.2z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 14px 14px;
+        padding-right: 2.6rem;
+    }
+
+    .order-summary {
+        background: linear-gradient(135deg, #fff7e6 0%, #ffeaa7 100%);
+        border: 2px solid #ffc107;
+        border-radius: 14px;
+        padding: 20px 22px;
+        margin-bottom: 25px;
+    }
+
+    .refund-product-summary {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+
+    .refund-product-image {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        background-color: #f9fafb;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        padding: 15px 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border-radius: 999px;
+        color: white;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 40px rgba(16, 185, 129, 0.55);
+    }
+
+    .btn-ripple {
+        position: absolute;
+        border-radius: 999px;
+        transform: scale(0);
+        background-color: rgba(255, 255, 255, 0.6);
+        animation: ripple 0.6s linear;
+        pointer-events: none;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="refund-form-card">
+                <div class="form-header">
+                    <h2 class="mb-2"><i class="bi bi-arrow-counterclockwise"></i> Request Refund</h2>
+                    <p class="mb-0">Order #@Model.Id</p>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h5 class="mb-3" style="font-weight: 800; color: #856404;">
+                        <i class="bi bi-receipt"></i> Order Summary
+                    </h5>
+                    @{
+                        var firstItem = Model.Items?.FirstOrDefault();
+                        var firstProduct = firstItem?.Product;
+                    }
+                    @if (firstItem != null)
+                    {
+                        <div class="refund-product-summary">
+                            @if (firstProduct != null && !string.IsNullOrEmpty(firstProduct.ImageUrl))
+                            {
+                                <img src="@firstProduct.ImageUrl"
+                                     alt="@firstProduct.Name"
+                                     class="refund-product-image" />
+                            }
+                            <div>
+                                <div class="fw-semibold">@((firstProduct?.Name) ?? "Order items")</div>
+                                <div class="small text-muted">
+                                    Order #@Model.Id • Qty: @firstItem.Quantity
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>Order Date:</strong> @(Model.CreatedAt != default(DateTime) ? Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt") : "Date not available")</p>
+                            @{
+                                var pm = Model.PaymentMethod ?? "COD";
+                                var pmLabel = pm == "Razorpay" ? "Razorpay Online Payment" :
+                                              (pm == "COD" || pm == "CashOnDelivery") ? "Cash on Delivery" : pm;
+                            }
+                            <p class="mb-2"><strong>Payment Method:</strong> @pmLabel</p>
+                            <p class="mb-2"><strong>Payment Status:</strong> @(Model.PaymentStatus ?? "Pending")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>Total Amount:</strong> ₹@Model.Total.ToString("N2")</p>
+                            <p class="mb-2"><strong>Order Status:</strong> @Model.Status</p>
+                            @if (!string.IsNullOrEmpty(Model.RazorpayPaymentId))
+                            {
+                                <p class="mb-2"><strong>Payment Reference:</strong> @Model.RazorpayPaymentId</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <strong>Items:</strong>
+                        <ul class="mb-0 mt-2">
+                            @if (Model.Items != null && Model.Items.Any())
+                            {
+                                @foreach (var item in Model.Items)
+                                {
+                                    <li>@(item.Product?.Name ?? "Unknown Product") - Qty: @item.Quantity - ₹@((item.UnitPrice * item.Quantity).ToString("N2"))</li>
+                                }
+                            }
+                            else
+                            {
+                                <li>No items found for this order.</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <form asp-action="SubmitRefundRequest" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Refund Reason -->
+                    <div class="form-section">
+                        <label class="form-label">
+                            <i class="bi bi-question-circle"></i> Reason for Refund *
+                        </label>
+                        <select name="reason" class="form-select" required>
+                            <option value="">Select a reason</option>
+                            <option value="Product Defective">Product Defective/Damaged</option>
+                            <option value="Wrong Product">Wrong Product Received</option>
+                            <option value="Product Not as Described">Product Not as Described</option>
+                            <option value="Size/Color Mismatch">Size/Color Mismatch</option>
+                            <option value="Quality Issues">Quality Issues</option>
+                            <option value="Changed Mind">Changed My Mind</option>
+                            <option value="Duplicate Order">Duplicate Order</option>
+                            <option value="Late Delivery">Late Delivery</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="form-section">
+                        <label class="form-label">
+                            <i class="bi bi-file-text"></i> Additional Details
+                        </label>
+                        <textarea name="additionalDetails" class="form-control" rows="5" 
+                                  placeholder="Please provide any additional information about your refund request..."></textarea>
+                    </div>
+
+                    <!-- Refund Amount -->
+                    <div class="form-section">
+                        <label class="form-label">
+                            <i class="bi bi-currency-rupee"></i> Refund Amount
+                        </label>
+                        <div class="alert alert-info mb-0" style="font-size: 1.1rem; font-weight: 600;">
+                            <strong>Refund Amount:</strong> ₹@Model.Total.ToString("N2")
+                            <br>
+                            <small class="text-muted">Full refund will be processed to your original payment method within 5-7 business days.</small>
+                        </div>
+                    </div>
+
+                    <!-- Refund Method -->
+                    <div class="form-section">
+                        <label class="form-label">
+                            <i class="bi bi-bank"></i> Refund Method
+                        </label>
+                        <div class="alert alert-success mb-0" style="font-size: 1rem; font-weight: 600;">
+                            <i class="bi bi-check-circle"></i> Refund will be processed to your original payment method: <strong>@pmLabel</strong>
+                        </div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="form-section">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms" style="font-weight: 600;">
+                                I agree that the product will be returned in original condition with all tags and packaging intact.
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="agreeRefund" required>
+                            <label class="form-check-label" for="agreeRefund" style="font-weight: 600;">
+                                I understand that refund will be processed within 5-7 business days after we receive the returned product.
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="submit-btn">
+                            <i class="bi bi-check-circle"></i> Submit Refund Request
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-3 mt-3 mt-md-0" style="padding: 15px 30px; font-size: 1.05rem; font-weight: 600; border-radius: 999px;">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.submit-btn').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    var rect = btn.getBoundingClientRect();
+                    var circle = document.createElement('span');
+                    var diameter = Math.max(rect.width, rect.height);
+                    var radius = diameter / 2;
+
+                    circle.style.width = circle.style.height = diameter + 'px';
+                    circle.style.left = (e.clientX - rect.left - radius) + 'px';
+                    circle.style.top = (e.clientY - rect.top - radius) + 'px';
+                    circle.classList.add('btn-ripple');
+
+                    var existing = btn.getElementsByClassName('btn-ripple')[0];
+                    if (existing) {
+                        existing.remove();
+                    }
+
+                    btn.appendChild(circle);
+                });
+            });
+        });
+    </script>
+}
+

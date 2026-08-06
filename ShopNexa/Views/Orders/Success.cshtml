@@ -1,0 +1,334 @@
+@model Order
+@{
+    ViewData["Title"] = "Order Success";
+    var paymentMethod = Model.PaymentMethod ?? "COD";
+    var paymentMethodDisplay = paymentMethod.Equals("Razorpay", StringComparison.OrdinalIgnoreCase)
+        ? "Razorpay Online Payment"
+        : "Cash on Delivery";
+}
+@Html.AntiForgeryToken()
+
+<section class="order-success-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="surface text-center p-5">
+                    <div class="mb-4">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 text-success"
+                              style="width:96px;height:96px;">
+                            <i class="bi bi-check-lg" style="font-size:2.5rem;"></i>
+                        </span>
+                    </div>
+                    <h1 class="h3 mb-2">Thank you for your order!</h1>
+                    <p class="text-muted mb-4">
+                        Your order has been placed successfully. You will receive an email with the order details shortly.
+                    </p>
+
+                    <div class="row text-start g-3 mb-4 justify-content-center">
+                        <div class="col-md-10">
+                            <div class="p-3 rounded-3 bg-light d-flex justify-content-between">
+                                <span class="text-muted">Order ID</span>
+                                <span class="fw-semibold">#@Model.Id</span>
+                            </div>
+                            <div class="p-3 rounded-3 bg-light d-flex justify-content-between mt-2">
+                                <span class="text-muted">Amount Paid</span>
+                                <span class="fw-semibold">₹@Model.Total.ToString("N2")</span>
+                            </div>
+                            <div class="p-3 rounded-3 bg-light d-flex justify-content-between mt-2">
+                                <span class="text-muted">Payment Method</span>
+                                <span class="fw-semibold">@paymentMethodDisplay</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.RazorpayPaymentId))
+                            {
+                                <div class="p-3 rounded-3 bg-light d-flex justify-content-between mt-2">
+                                    <span class="text-muted">Razorpay Payment ID</span>
+                                    <span class="fw-semibold">@Model.RazorpayPaymentId</span>
+                                </div>
+                            }
+                            @if (Model.PaymentDate.HasValue)
+                            {
+                                <div class="p-3 rounded-3 bg-light d-flex justify-content-between mt-2">
+                                    <span class="text-muted">Payment Date</span>
+                                    <span class="fw-semibold">@Model.PaymentDate.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-4 text-start mx-auto" style="max-width: 520px;">
+                        <h2 class="h6 mb-3">Delivery to</h2>
+                        <p class="mb-1 fw-semibold">@Model.CustomerName</p>
+                        <p class="mb-1 text-muted">@Model.AddressLine1</p>
+                        @if (!string.IsNullOrEmpty(Model.AddressLine2))
+                        {
+                            <p class="mb-1 text-muted">@Model.AddressLine2</p>
+                        }
+                        <p class="mb-1 text-muted">@Model.City, @Model.Country @Model.PostalCode</p>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-bag"></i> Continue Shopping
+                        </a>
+                        <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-receipt"></i> View My Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Customer Feedback Section -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card feedback-card p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="h4">Rate Your Experience</h2>
+                        <p class="text-muted">Help us improve by sharing your feedback</p>
+                    </div>
+                    
+                    <div id="feedback-form-container">
+                        <div id="feedback-loading" class="text-center d-none">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        
+                        <div id="feedback-content">
+                            <!-- Star Rating -->
+                            <div class="star-rating-container text-center mb-4">
+                                <div class="star-rating mb-3">
+                                    <input type="hidden" id="rating-value" name="rating" value="0" />
+                                    <span class="star" data-rating="1">&#9734;</span>
+                                    <span class="star" data-rating="2">&#9734;</span>
+                                    <span class="star" data-rating="3">&#9734;</span>
+                                    <span class="star" data-rating="4">&#9734;</span>
+                                    <span class="star" data-rating="5">&#9734;</span>
+                                </div>
+                                <p class="text-muted small mb-3">Click to rate (1-5 stars)</p>
+                            </div>
+                            
+                            <!-- Feedback Message -->
+                            <div class="mb-3">
+                                <textarea id="feedback-message" class="form-control" rows="4" 
+                                          placeholder="Write your feedback (optional)..." maxlength="500"></textarea>
+                                <div class="form-text text-end">
+                                    <span id="char-count">0</span>/500 characters
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="text-center">
+                                <button id="submit-feedback" class="btn btn-primary btn-lg px-4">
+                                    Submit Feedback
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="feedback-message-container" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderId = @Model.Id;
+            const ratingInput = document.getElementById('rating-value');
+            const stars = document.querySelectorAll('.star');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const charCount = document.getElementById('char-count');
+            const submitBtn = document.getElementById('submit-feedback');
+            const feedbackContainer = document.getElementById('feedback-form-container');
+            const feedbackMessageContainer = document.getElementById('feedback-message-container');
+            const feedbackContent = document.getElementById('feedback-content');
+            const loadingElement = document.getElementById('feedback-loading');
+            
+            // Check if feedback already exists for this order
+            checkFeedbackStatus();
+            
+            function checkFeedbackStatus() {
+                fetch(`/Feedback/HasSubmittedFeedback?orderId=${orderId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.hasSubmitted) {
+                            showAlreadySubmittedMessage();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking feedback status:', error);
+                    });
+            }
+            
+            function showAlreadySubmittedMessage() {
+                feedbackContent.innerHTML = `
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-chat-square-quote" style="font-size: 3rem; color: #6c757d;"></i>
+                        </div>
+                        <h5>You have already submitted feedback for this order.</h5>
+                        <p class="text-muted">Thank you for your previous feedback!</p>
+                    </div>
+                `;
+                submitBtn.style.display = 'none';
+            }
+            
+            // Character counter for feedback message
+            feedbackMessage.addEventListener('input', function() {
+                const currentLength = this.value.length;
+                charCount.textContent = currentLength;
+                
+                if (currentLength > 450) {
+                    charCount.style.color = '#dc3545';
+                } else {
+                    charCount.style.color = '';
+                }
+            });
+            
+            // Star rating functionality
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    ratingInput.value = rating;
+                    
+                    // Update star appearance
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.innerHTML = '&#9733;';
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.innerHTML = '&#9734;';
+                            s.style.color = '#6c757d';
+                        }
+                    });
+                });
+                
+                // Hover effect
+                star.addEventListener('mouseover', function() {
+                    const hoverRating = parseInt(this.getAttribute('data-rating'));
+                    
+                    stars.forEach((s, index) => {
+                        if (index < hoverRating) {
+                            if (parseInt(s.getAttribute('data-rating')) > parseInt(ratingInput.value)) {
+                                s.innerHTML = '&#9733;';
+                                s.style.color = '#ffc107';
+                            }
+                        } else {
+                            if (parseInt(s.getAttribute('data-rating')) > parseInt(ratingInput.value)) {
+                                s.innerHTML = '&#9734;';
+                                s.style.color = '#6c757d';
+                            }
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseout', function() {
+                    const currentRating = parseInt(ratingInput.value);
+                    
+                    stars.forEach((s, index) => {
+                        if (index < currentRating) {
+                            s.innerHTML = '&#9733;';
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.innerHTML = '&#9734;';
+                            s.style.color = '#6c757d';
+                        }
+                    });
+                });
+            });
+            
+            // Submit feedback
+            submitBtn.addEventListener('click', function() {
+                const rating = parseInt(ratingInput.value);
+                const message = feedbackMessage.value.trim();
+                
+                if (rating === 0) {
+                    showMessage('Please select a rating (1-5 stars)', 'danger');
+                    return;
+                }
+                
+                if (rating < 1 || rating > 5) {
+                    showMessage('Rating must be between 1 and 5', 'danger');
+                    return;
+                }
+                
+                submitFeedback(rating, message);
+            });
+            
+            function submitFeedback(rating, message) {
+                // Show loading
+                loadingElement.classList.remove('d-none');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                
+                const formData = new FormData();
+                formData.append('orderId', orderId);
+                formData.append('rating', rating);
+                formData.append('message', message);
+                
+                // Add the anti-forgery token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                formData.append('__RequestVerificationToken', token);
+                
+                fetch('/Feedback/Submit', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        // Hide the form after successful submission
+                        feedbackContent.innerHTML = `
+                            <div class="text-center">
+                                <div class="mb-3">
+                                    <i class="bi bi-check-circle-fill" style="font-size: 3rem; color: #28a745;"></i>
+                                </div>
+                                <h5>${data.message}</h5>
+                                <p class="text-muted">We appreciate your feedback!</p>
+                            </div>
+                        `;
+                        submitBtn.style.display = 'none';
+                    } else {
+                        showMessage(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting feedback:', error);
+                    showMessage('An error occurred while submitting your feedback. Please try again.', 'danger');
+                })
+                .finally(() => {
+                    // Hide loading
+                    loadingElement.classList.add('d-none');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Feedback';
+                });
+            }
+            
+            function showMessage(message, type) {
+                feedbackMessageContainer.innerHTML = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                // Auto-hide success messages after 5 seconds
+                if (type === 'success') {
+                    setTimeout(() => {
+                        const alertElement = feedbackMessageContainer.querySelector('.alert');
+                        if (alertElement) {
+                            const bsAlert = new bootstrap.Alert(alertElement);
+                            bsAlert.close();
+                        }
+                    }, 5000);
+                }
+            }
+        });
+    </script>
+</section>
+
+

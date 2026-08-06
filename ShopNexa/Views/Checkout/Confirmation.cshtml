@@ -1,0 +1,271 @@
+@model Order
+@{
+    ViewData["Title"] = "Order Confirmation";
+    bool isCOD = Model.PaymentMethod?.Equals("COD", StringComparison.OrdinalIgnoreCase) == true
+                 || Model.PaymentMethod?.Equals("CashOnDelivery", StringComparison.OrdinalIgnoreCase) == true;
+    bool isOnlinePaid = Model.PaymentMethod?.Equals("Razorpay", StringComparison.OrdinalIgnoreCase) == true
+                        && Model.PaymentStatus?.Equals("Paid", StringComparison.OrdinalIgnoreCase) == true;
+    bool showOrderPlaced = isCOD || isOnlinePaid;
+}
+
+<style>
+    .confirmation-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    .confirmation-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .success-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+    .payment-pending-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+    .qr-code-container {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        display: inline-block;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin: 20px 0;
+        border: 3px solid #667eea;
+    }
+    .payment-steps {
+        list-style: none;
+        padding: 0;
+    }
+    .payment-steps li {
+        padding: 10px 0;
+        padding-left: 40px;
+        position: relative;
+    }
+    .payment-steps li:before {
+        content: counter(step-counter);
+        counter-increment: step-counter;
+        position: absolute;
+        left: 0;
+        top: 10px;
+        background: #667eea;
+        color: white;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    .payment-steps {
+        counter-reset: step-counter;
+    }
+    .payment-success-block {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px 0;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.3);
+    }
+    .payment-pending-block {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 30px 0;
+    }
+    .amount-highlight {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin: 15px 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .amount-display-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 12px;
+        margin: 20px 0;
+        display: inline-block;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+</style>
+
+<div class="confirmation-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="confirmation-card">
+                    @if (showOrderPlaced)
+                    {
+                        <!-- Success Header - Only show after payment or COD -->
+                        <div class="success-header">
+                            <div style="font-size: 5rem; margin-bottom: 20px;">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <h2 class="mb-2">Order Placed Successfully!</h2>
+                            <p class="mb-0 opacity-75">Order #@Model.Id has been confirmed</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="payment-pending-header">
+                            <div style="font-size: 5rem; margin-bottom: 20px;">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <h2 class="mb-2">Order Pending</h2>
+                            <p class="mb-0 opacity-75">Order #@Model.Id</p>
+                        </div>
+                    }
+
+                    <div class="card-body p-5">
+                        <!-- Order Details -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="mb-3"><i class="bi bi-info-circle text-primary"></i> Order Information</h5>
+                                <p><strong>Order ID:</strong> #@Model.Id</p>
+                                <p><strong>Order Date:</strong> @Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</p>
+                                <p><strong>Total Amount:</strong> <span class="text-primary fw-bold fs-5">₹@Model.Total.ToString("N2")</span></p>
+                                <p><strong>Payment Method:</strong> 
+                                    @if (isCOD)
+                                    {
+                                        <span class="badge bg-success">Cash on Delivery</span>
+                                    }
+                                    else if (Model.PaymentMethod?.Equals("Razorpay", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <span class="badge bg-primary">Razorpay Online Payment</span>
+                                    }
+                                </p>
+                                <p><strong>Payment Status:</strong> 
+                                    @if (Model.PaymentStatus?.Equals("Paid", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Paid</span>
+                                    }
+                                    else if (isCOD)
+                                    {
+                                        <span class="badge bg-info"><i class="bi bi-cash-coin"></i> Cash on Delivery</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning"><i class="bi bi-clock"></i> Pending</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-3"><i class="bi bi-geo-alt text-primary"></i> Shipping Address</h5>
+                                <p class="mb-1">@Model.CustomerName</p>
+                                <p class="mb-1 text-muted">@Model.AddressLine1</p>
+                                @if (!string.IsNullOrEmpty(Model.AddressLine2))
+                                {
+                                    <p class="mb-1 text-muted">@Model.AddressLine2</p>
+                                }
+                                <p class="mb-1 text-muted">@Model.City, @Model.Country</p>
+                                @if (!string.IsNullOrEmpty(Model.PostalCode))
+                                {
+                                    <p class="mb-1 text-muted">PIN: @Model.PostalCode</p>
+                                }
+                            </div>
+                        </div>
+
+                        @if (Model.PaymentStatus?.Equals("Paid", StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            <!-- Payment Success Block - Only shows after payment is confirmed -->
+                            <div class="payment-success-block">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <h3 class="mb-3">Payment Successful!</h3>
+                                <p class="mb-2 fs-5">Your payment of <strong>₹@Model.Total.ToString("N2")</strong> has been received.</p>
+                                <p class="mb-0">Your order is now confirmed and will be processed shortly.</p>
+                            </div>
+                        }
+                        else if (isCOD)
+                        {
+                            <!-- Cash on Delivery Message -->
+                            <div class="payment-success-block">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <h3 class="mb-3">Order Placed Successfully!</h3>
+                                <p class="mb-2 fs-5">Your order has been confirmed.</p>
+                                <p class="mb-0">Please keep <strong>₹@Model.Total.ToString("N2")</strong> ready for cash payment when you receive your order.</p>
+                            </div>
+                        }
+                        else if (isOnlinePaid)
+                        {
+                            <div class="payment-success-block">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <h3 class="mb-3">Payment Successful!</h3>
+                                <p class="mb-2 fs-5">Your payment of <strong>₹@Model.Total.ToString("N2")</strong> has been received via Razorpay.</p>
+                                <p class="mb-0">Your order is now confirmed and will be processed shortly.</p>
+                            </div>
+                        }
+
+                        <!-- Order Items -->
+                        <div class="mt-4">
+                            <h5 class="mb-3"><i class="bi bi-box-seam text-primary"></i> Order Items</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Items)
+                                        {
+                                            <tr>
+                                                <td>@item.Product?.Name</td>
+                                                <td>@item.Quantity</td>
+                                                <td>₹@item.UnitPrice.ToString("N2")</td>
+                                                <td>₹@((item.Quantity * item.UnitPrice).ToString("N2"))</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="3" class="text-end">Total:</th>
+                                            <th>₹@Model.Total.ToString("N2")</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-5">
+                            <a class="btn btn-primary btn-lg me-2" asp-controller="Products" asp-action="Index">
+                                <i class="bi bi-bag"></i> Continue Shopping
+                            </a>
+                            <a class="btn btn-outline-secondary btn-lg" asp-controller="Orders" asp-action="Index">
+                                <i class="bi bi-receipt"></i> View My Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+}

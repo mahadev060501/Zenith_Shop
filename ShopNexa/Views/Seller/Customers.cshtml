@@ -1,0 +1,46 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Customers";
+    Layout = "_SellerLayout";
+}
+
+<div class="dashboard-header">
+    <h1>Customers</h1>
+    <p>View your customer base and their purchase history</p>
+</div>
+
+<div class="section-card">
+    @if (Model.Any())
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Email</th>
+                    <th>Orders</th>
+                    <th>Total Spent</th>
+                    <th>Last Order</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model)
+                {
+                    <tr>
+                        <td><strong>@customer.Name</strong></td>
+                        <td>@customer.Email</td>
+                        <td>@customer.OrderCount</td>
+                        <td>₹@customer.TotalSpent.ToString("N0")</td>
+                        <td>@customer.LastOrder.ToString("MMM dd, yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-people" style="font-size: 3rem; color: #ddd;"></i>
+            <p class="mt-3 text-muted">No customers yet. Start selling to build your customer base!</p>
+        </div>
+    }
+</div>

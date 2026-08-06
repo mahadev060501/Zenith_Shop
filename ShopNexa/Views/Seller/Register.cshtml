@@ -1,0 +1,403 @@
+@model ShopNexa.Models.SellerRegisterViewModel
+@{
+    ViewData["Title"] = "Seller Registration - Zenith";
+}
+
+<!-- REGISTRATION HEADER -->
+<section class="registration-header">
+    <div class="container">
+        <h1>Seller Registration</h1>
+        <p>Complete the form below to apply as a seller on Zenith</p>
+    </div>
+</section>
+
+<!-- REGISTRATION FORM -->
+<section class="registration-section">
+    <div class="container">
+        <div class="registration-card">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @TempData["Error"]
+                </div>
+            }
+
+            @if (TempData["Info"] != null)
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    @TempData["Info"]
+                </div>
+            }
+
+            <form asp-action="Register" asp-controller="Seller" method="post" class="registration-form" id="sellerRegistrationForm">
+                @Html.AntiForgeryToken()
+
+                <div class="form-section">
+                    <h3><i class="bi bi-building"></i> Company Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="CompanyName">Company Name <span class="required">*</span></label>
+                            <input asp-for="CompanyName" class="form-control" placeholder="Enter your company name" />
+                            <span asp-validation-for="CompanyName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="OwnerName">Owner Name <span class="required">*</span></label>
+                            <input asp-for="OwnerName" class="form-control" placeholder="Enter owner full name" />
+                            <span asp-validation-for="OwnerName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="bi bi-person-lines-fill"></i> Contact Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="Email">Email Address <span class="required">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <small class="form-text">This will be your login email</small>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Phone">Phone Number <span class="required">*</span></label>
+                            <input asp-for="Phone" type="tel" class="form-control" placeholder="+91 98765 43210" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label asp-for="Address">Business Address <span class="required">*</span></label>
+                        <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter your complete business address"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="bi bi-file-earmark-text"></i> Business Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="GSTNumber">GST Number <span class="optional">(Optional)</span></label>
+                            <input asp-for="GSTNumber" class="form-control" placeholder="22AAAAA0000A1Z5" />
+                            <span asp-validation-for="GSTNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="BankAccountDetails">Bank Account Details <span class="optional">(Optional)</span></label>
+                            <input asp-for="BankAccountDetails" class="form-control" placeholder="Account Number, IFSC, Bank Name" />
+                            <span asp-validation-for="BankAccountDetails" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section terms-section">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="termsCheck" name="AgreeToTerms" required />
+                        <label class="form-check-label" for="termsCheck">
+                            I agree to the <a href="#" target="_blank">Terms and Conditions</a> and 
+                            <a href="#" target="_blank">Seller Agreement</a>. I confirm that all information provided is accurate.
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span class="btn-text">Submit Seller Request</span>
+                        <span class="btn-loading" style="display: none;">
+                            <i class="bi bi-arrow-repeat spin"></i> Submitting...
+                        </span>
+                    </button>
+                    <a asp-action="BecomeSeller" asp-controller="Seller" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* REGISTRATION HEADER */
+    .registration-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 0;
+        text-align: center;
+        color: white;
+    }
+
+    .registration-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .registration-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* REGISTRATION SECTION */
+    .registration-section {
+        padding: 60px 0;
+        background: #f8f9fa;
+    }
+
+    .registration-card {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ALERTS */
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .alert-info {
+        background: #dbeafe;
+        color: #2563eb;
+        border: 1px solid #bfdbfe;
+    }
+
+    /* FORM SECTIONS */
+    .form-section {
+        margin-bottom: 35px;
+        padding-bottom: 35px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .form-section h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-section h3 i {
+        color: #667eea;
+    }
+
+    /* FORM ROWS */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .required {
+        color: #dc2626;
+    }
+
+    .optional {
+        color: #6b7280;
+        font-weight: 400;
+        font-size: 0.9em;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-text {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .text-danger {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* TERMS SECTION */
+    .terms-section {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 2px;
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        font-size: 0.95rem;
+        color: #4b5563;
+        line-height: 1.5;
+    }
+
+    .form-check-label a {
+        color: #667eea;
+        text-decoration: none;
+    }
+
+    .form-check-label a:hover {
+        text-decoration: underline;
+    }
+
+    /* FORM ACTIONS */
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .btn-cancel {
+        padding: 16px 32px;
+        background: #f3f4f6;
+        color: #4b5563;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background 0.2s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+        text-decoration: none;
+    }
+
+    /* SPINNER */
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 768px) {
+        .registration-header h1 {
+            font-size: 2rem;
+        }
+
+        .registration-card {
+            padding: 25px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('sellerRegistrationForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+
+            if (this.checkValidity()) {
+                submitBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline';
+            }
+        });
+
+        // Phone number formatting
+        document.getElementById('Phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 10) value = value.slice(0, 10);
+            e.target.value = value;
+        });
+    </script>
+}

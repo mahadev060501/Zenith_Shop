@@ -1,0 +1,12 @@
+[
+  {
+    "ContainingType": "ShopNexa.Controllers.RazorpayWebhookController",
+    "Method": "HandleWebhook",
+    "RelativePath": "api/webhooks/razorpay",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

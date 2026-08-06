@@ -1,0 +1,114 @@
+@model List<CartItem>
+@{
+    ViewData["Title"] = "Your Cart";
+    decimal subtotal = ViewBag.Total ?? 0m;
+    decimal shipping = subtotal < 500m && subtotal > 0m ? 49m : 0m;
+    decimal total = subtotal + shipping;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <p class="section-subtitle mb-1">Cart</p>
+            <h1 class="h4 mb-0">Your cart</h1>
+        </div>
+        <a class="btn btn-outline-primary btn-sm" asp-controller="Products" asp-action="Index">
+            Continue shopping
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="surface text-center py-5">
+            <i class="bi bi-cart-x mb-3" style="font-size: 2.5rem; color: #d1d5db;"></i>
+            <h2 class="h5 mb-2">Your cart is empty</h2>
+            <p class="mb-3">Browse products and add items to your cart to see them here.</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                Browse products
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row gy-4">
+            <div class="col-lg-8">
+                <div class="surface">
+                    <h2 class="h6 mb-3">Items</h2>
+                    @foreach (var item in Model)
+                    {
+                        <div class="d-flex align-items-start gap-3 py-3 border-bottom">
+                            <img src="@item.ImageUrl"
+                                 alt="@item.Name"
+                                 style="width: 72px; height: 72px; object-fit: cover; border-radius: 8px;" />
+                            <div class="flex-grow-1">
+                                <h3 class="product-title mb-1">@item.Name</h3>
+                                <p class="product-meta mb-2">₹@item.Price.ToString("N2") each</p>
+                                <form asp-action="Update" method="post" class="row gx-2 gy-2 align-items-center">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <div class="col-auto">
+                                        <label class="form-label mb-0 small" for="qty_@item.ProductId">Qty</label>
+                                    </div>
+                                    <div class="col-auto" style="max-width: 96px;">
+                                        <input id="qty_@item.ProductId"
+                                               type="number"
+                                               name="quantity"
+                                               value="@item.Quantity"
+                                               min="1"
+                                               class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="col-auto">
+                                        <button class="btn btn-outline-primary btn-sm" type="submit">
+                                            Update
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="text-end">
+                                <div class="product-price mb-2">
+                                    ₹@((item.Price * item.Quantity).ToString("N2"))
+                                </div>
+                                <form asp-action="Remove" method="post">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit">
+                                        Remove
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="cart-summary">
+                    <h2 class="h6 mb-3">Order summary</h2>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="product-meta">Subtotal</span>
+                        <span class="product-meta">₹@subtotal.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="product-meta">Shipping</span>
+                        @if (shipping > 0)
+                        {
+                            <span class="product-meta">₹@shipping.ToString("N2")</span>
+                        }
+                        else
+                        {
+                            <span class="text-success small">Free</span>
+                        }
+                    </div>
+                    <hr class="my-2" />
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-semibold">Total</span>
+                        <span class="fw-semibold">₹@total.ToString("N2")</span>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        Shipping is ₹49 for orders below ₹500, otherwise free.
+                    </p>
+                    <a class="btn btn-primary w-100" asp-controller="Checkout" asp-action="Index">
+                        Proceed to checkout
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

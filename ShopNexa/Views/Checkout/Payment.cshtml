@@ -1,0 +1,109 @@
+@{
+    ViewData["Title"] = "Select Payment Method";
+    decimal total = ViewBag.Total ?? 0m;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="surface">
+                <p class="section-subtitle mb-1">Step 2 of 2</p>
+                <h1 class="h4 mb-3">Select payment method</h1>
+
+                <div class="mb-3">
+                    <p class="product-meta mb-1">Total amount to pay</p>
+                    <div class="d-inline-flex align-items-baseline gap-2 px-3 py-2 rounded-3" style="background-color:#eff6ff; border:1px solid #bfdbfe;">
+                        <span class="fw-semibold">₹@total.ToString("N2")</span>
+                    </div>
+                </div>
+
+                <form asp-action="Payment" method="post" id="paymentForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <article class="payment-method-card mb-2" data-method="Razorpay">
+                            <div class="d-flex align-items-center">
+                                <input type="radio" name="paymentMethod" value="Razorpay" id="razorpay" class="form-check-input me-3" required />
+                                <div>
+                                    <div class="fw-semibold mb-1">Online payment (Razorpay)</div>
+                                    <p class="product-meta mb-0">Pay securely using cards, net banking or wallets via Razorpay.</p>
+                                </div>
+                            </div>
+                            <div class="payment-method-icon">
+                                <i class="bi bi-credit-card-2-front"></i>
+                            </div>
+                        </article>
+
+                        <article class="payment-method-card" data-method="COD">
+                            <div class="d-flex align-items-center">
+                                <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input me-3" />
+                                <div>
+                                    <div class="fw-semibold mb-1">Cash on delivery</div>
+                                    <p class="product-meta mb-0">Pay in cash when your order is delivered.</p>
+                                </div>
+                            </div>
+                            <div class="payment-method-icon">
+                                <i class="bi bi-cash-stack"></i>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div id="paymentError" class="text-danger small mb-3"></div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            Back to shipping
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="proceedBtn" disabled>
+                            Pay now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const methodCards = document.querySelectorAll('.payment-method-card');
+            const proceedBtn = document.getElementById('proceedBtn');
+            const errorEl = document.getElementById('paymentError');
+
+            methodCards.forEach(card => {
+                card.addEventListener('click', function () {
+                    methodCards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        proceedBtn.disabled = false;
+                        errorEl.textContent = '';
+                    }
+                });
+            });
+
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    methodCards.forEach(c => c.classList.remove('selected'));
+                    const card = this.closest('.payment-method-card');
+                    if (card) {
+                        card.classList.add('selected');
+                        proceedBtn.disabled = false;
+                        errorEl.textContent = '';
+                    }
+                });
+            });
+
+            document.getElementById('paymentForm').addEventListener('submit', function (e) {
+                const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
+                if (!selectedMethod) {
+                    e.preventDefault();
+                    errorEl.textContent = 'Please select a payment method.';
+                    proceedBtn.disabled = true;
+                }
+            });
+        })();
+    </script>
+}

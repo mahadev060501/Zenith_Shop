@@ -1,0 +1,139 @@
+@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Products";
+    var categories = ViewBag.Categories as List<Category>;
+    int? selectedCategory = ViewBag.SelectedCategory;
+    string? search = ViewBag.Search;
+    bool hasProducts = Model != null && Model.Any();
+}
+
+<!-- PRODUCTS PAGE HEADER -->
+<section class="products-header">
+    <div class="container">
+        <h1 class="products-title">ALL PRODUCTS</h1>
+        @if (!string.IsNullOrWhiteSpace(search))
+        {
+            <p class="products-subtitle">Search results for "@search"</p>
+        }
+        else if (selectedCategory.HasValue && categories != null)
+        {
+            var categoryName = categories.FirstOrDefault(c => c.Id == selectedCategory)?.Name ?? "Selected";
+            <p class="products-subtitle">Category: @categoryName</p>
+        }
+        else
+        {
+            <p class="products-subtitle">Discover our premium collection</p>
+        }
+    </div>
+</section>
+
+<!-- PRODUCTS GRID -->
+<section class="products-section">
+    <div class="container">
+        @if (!hasProducts)
+        {
+            <!-- Empty State -->
+            <div class="products-empty">
+                <i class="bi bi-inbox"></i>
+                <h2>No products found</h2>
+                <p>Try changing your search or browse all products.</p>
+                <a asp-controller="Products" asp-action="Index" class="btn btn-dark">View All Products</a>
+            </div>
+        }
+        else
+        {
+            <!-- Skeleton Loader (shown initially, hidden by JS when products load) -->
+            <div id="skeletonLoader" class="skeleton-grid">
+                @for (int i = 0; i < 8; i++)
+                {
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-image"></div>
+                        <div class="skeleton-content">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-price"></div>
+                            <div class="skeleton skeleton-button"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Actual Products Grid -->
+            <div id="productsGrid" class="products-grid" style="display: none;">
+                @foreach (var product in Model!)
+                {
+                    <article class="product-card">
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="product-image-link">
+                            <div class="product-image">
+                                <!-- Stock Badge -->
+                                @if (product.Stock > 0 && product.Stock <= 5)
+                                {
+                                    <span class="stock-badge stock-low">Only @product.Stock left</span>
+                                }
+                                else if (product.Stock > 5 && product.Stock <= 10)
+                                {
+                                    <span class="stock-badge stock-selling">Selling Fast</span>
+                                }
+                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="product-image-placeholder">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                }
+                            </div>
+                        </a>
+                        <div class="product-info">
+                            <h2 class="product-name">@product.Name</h2>
+                            <div class="product-price-row">
+                                <span class="product-price">₹@product.Price.ToString("N0")</span>
+                                @if (product.OriginalPrice.HasValue && product.OriginalPrice > product.Price)
+                                {
+                                    <span class="product-original-price">₹@product.OriginalPrice.Value.ToString("N0")</span>
+                                }
+                            </div>
+                            <div class="product-actions">
+                                <div class="product-buttons">
+                                    <form asp-controller="Cart" asp-action="Add" method="post" data-add-to-cart="true" class="flex-fill">
+                                        <input type="hidden" name="productId" value="@product.Id" />
+                                        <button type="submit" class="btn-add-cart">
+                                            <i class="bi bi-bag-plus"></i>
+                                            Add to Cart
+                                        </button>
+                                    </form>
+                                    <form asp-controller="Cart" asp-action="BuyNow" method="post" class="flex-fill">
+                                        <input type="hidden" name="productId" value="@product.Id" />
+                                        <button type="submit" class="btn-shop-now">
+                                            Shop Now
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Show skeleton loader initially, then fade in products
+        document.addEventListener('DOMContentLoaded', function() {
+            const skeletonLoader = document.getElementById('skeletonLoader');
+            const productsGrid = document.getElementById('productsGrid');
+            
+            if (skeletonLoader && productsGrid) {
+                // Simulate loading delay for smooth UX
+                setTimeout(function() {
+                    skeletonLoader.style.display = 'none';
+                    productsGrid.style.display = 'grid';
+                    productsGrid.style.animation = 'page-fade-in 0.4s ease-out';
+                }, 400);
+            }
+        });
+    </script>
+}

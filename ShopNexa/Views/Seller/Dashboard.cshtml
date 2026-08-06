@@ -1,0 +1,300 @@
+@model ShopNexa.Models.SellerDashboardStats
+@{
+    ViewData["Title"] = "Seller Dashboard";
+    Layout = "_SellerLayout";
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <p>Welcome back! Here's what's happening with your store.</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <!-- Clickable Stats -->
+    <a asp-action="Products" asp-controller="Seller" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value">@Model.TotalProducts</div>
+            </div>
+            <div class="stat-icon blue">
+                <i class="bi bi-box"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            <i class="bi bi-arrow-up"></i> Manage your products
+        </div>
+    </a>
+
+    <a asp-action="Orders" asp-controller="Seller" asp-route-status="Pending" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Pending Orders</div>
+                <div class="stat-value">@Model.PendingOrders</div>
+            </div>
+            <div class="stat-icon orange">
+                <i class="bi bi-clock"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            <i class="bi bi-arrow-up"></i> Requires attention
+        </div>
+    </a>
+
+    <a asp-action="Orders" asp-controller="Seller" asp-route-status="Confirmed" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Confirmed Orders</div>
+                <div class="stat-value">@Model.ConfirmedOrders</div>
+            </div>
+            <div class="stat-icon teal">
+                <i class="bi bi-check-circle"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            <i class="bi bi-arrow-up"></i> Ready to ship
+        </div>
+    </a>
+
+    <a asp-action="Orders" asp-controller="Seller" asp-route-status="Cancelled" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Cancelled Orders</div>
+                <div class="stat-value">@Model.CancelledOrders</div>
+            </div>
+            <div class="stat-icon red">
+                <i class="bi bi-x-circle"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            View cancelled orders
+        </div>
+    </a>
+
+    <a asp-action="Orders" asp-controller="Seller" asp-route-status="Delivered" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Delivered Orders</div>
+                <div class="stat-value">@Model.DeliveredOrders</div>
+            </div>
+            <div class="stat-icon green">
+                <i class="bi bi-truck"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            <i class="bi bi-arrow-up"></i> Completed orders
+        </div>
+    </a>
+
+    <a asp-action="Customers" asp-controller="Seller" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Customers</div>
+                <div class="stat-value">@Model.TotalCustomers</div>
+            </div>
+            <div class="stat-icon purple">
+                <i class="bi bi-people"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            View customer list
+        </div>
+    </a>
+
+    <a asp-action="Products" asp-controller="Seller" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Low Stock</div>
+                <div class="stat-value">@Model.LowStockProducts</div>
+            </div>
+            <div class="stat-icon orange">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+        </div>
+        <div class="stat-change" style="color: #ffc107;">
+            Restock needed
+        </div>
+    </a>
+
+    <a asp-action="Products" asp-controller="Seller" class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Out of Stock</div>
+                <div class="stat-value">@Model.OutOfStockProducts</div>
+            </div>
+            <div class="stat-icon red">
+                <i class="bi bi-cart-x"></i>
+            </div>
+        </div>
+        <div class="stat-change" style="color: #dc3545;">
+            Urgent restock
+        </div>
+    </a>
+
+    <!-- Non-Clickable Stats -->
+    <div class="stat-card non-clickable">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value">₹@Model.TotalRevenue.ToString("N0")</div>
+            </div>
+            <div class="stat-icon green">
+                <i class="bi bi-currency-rupee"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            Lifetime earnings
+        </div>
+    </div>
+
+    <div class="stat-card non-clickable">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Monthly Revenue</div>
+                <div class="stat-value">₹@Model.MonthlyRevenue.ToString("N0")</div>
+            </div>
+            <div class="stat-icon blue">
+                <i class="bi bi-calendar-month"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            This month
+        </div>
+    </div>
+
+    <div class="stat-card non-clickable">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Average Order Value</div>
+                <div class="stat-value">₹@Model.AverageOrderValue.ToString("N0")</div>
+            </div>
+            <div class="stat-icon purple">
+                <i class="bi bi-graph-up"></i>
+            </div>
+        </div>
+        <div class="stat-change">
+            Per order average
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders Section -->
+<div class="section-card">
+    <div class="section-header">
+        <h2 class="section-title">Recent Orders</h2>
+        <a asp-action="Orders" asp-controller="Seller" class="view-all">View All Orders</a>
+    </div>
+    
+    @if (Model.RecentOrders.Any())
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.RecentOrders)
+                {
+                    <tr>
+                        <td><strong>#@order.OrderId</strong></td>
+                        <td>@order.CustomerName</td>
+                        <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                        <td>@order.ItemCount items</td>
+                        <td>₹@order.Total.ToString("N0")</td>
+                        <td>
+                            <span class="status-badge status-@order.Status.ToLower()">@order.Status</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-bag" style="font-size: 3rem; color: #ddd;"></i>
+            <p class="mt-3 text-muted">No orders yet. Start adding products to get your first order!</p>
+            <a asp-action="CreateProduct" asp-controller="Seller" class="btn-add mt-3">
+                <i class="bi bi-plus-lg"></i> Add Your First Product
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Top Products Section -->
+<div class="section-card">
+    <div class="section-header">
+        <h2 class="section-title">Top Selling Products</h2>
+        <a asp-action="Products" asp-controller="Seller" class="view-all">View All Products</a>
+    </div>
+    
+    @if (Model.TopProducts.Any())
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Sold</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model.TopProducts)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl" alt="@product.ProductName" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;" />
+                                }
+                                else
+                                {
+                                    <div style="width: 40px; height: 40px; background: #f0f0f0; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                }
+                                <span>@product.ProductName</span>
+                            </div>
+                        </td>
+                        <td>₹@product.Price.ToString("N0")</td>
+                        <td>
+                            @if (product.Stock > 10)
+                            {
+                                <span class="text-success">@product.Stock in stock</span>
+                            }
+                            else if (product.Stock > 0)
+                            {
+                                <span class="text-warning">@product.Stock left</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Out of stock</span>
+                            }
+                        </td>
+                        <td>@product.SoldCount sold</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-box" style="font-size: 3rem; color: #ddd;"></i>
+            <p class="mt-3 text-muted">No products yet. Add your first product to start selling!</p>
+            <a asp-action="CreateProduct" asp-controller="Seller" class="btn-add mt-3">
+                <i class="bi bi-plus-lg"></i> Add Product
+            </a>
+        </div>
+    }
+</div>

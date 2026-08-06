@@ -1,0 +1,269 @@
+@model Product
+@{
+    ViewData["Title"] = "Add New Product";
+}
+
+<style>
+    .product-form-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    /* ===== FIXED HEADER ===== */
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 35px;
+        text-align: center;
+        color: #ffffff;
+    }
+
+        .form-header h2 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        .form-header p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #ffffff;
+            opacity: 1;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+    .form-body {
+        padding: 40px;
+    }
+
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-left: 4px solid #667eea;
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-control-modern {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+        .form-control-modern:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+    .form-label-modern {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .image-preview {
+        width: 100%;
+        max-width: 300px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px dashed #dee2e6;
+        display: none;
+        margin-top: 10px;
+    }
+
+        .image-preview.show {
+            display: block;
+        }
+
+    .help-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 14px 40px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        color: #fff;
+    }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+</style>
+
+<div class="product-form-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="form-card">
+
+                    <!-- HEADER -->
+                    <div class="form-header">
+                        <h2><i class="bi bi-plus-circle-fill"></i> Step 2: List Products</h2>
+                        <p>Add your products with images, descriptions, and pricing. Start with as few as 1 product.</p>
+                    </div>
+
+                    <div class="form-body">
+                        <form asp-action="CreateProduct" method="post" id="productForm">
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                            <!-- Basic Info -->
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="bi bi-info-circle"></i> Basic Information
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Name" class="form-label-modern">
+                                        Product Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Name" class="form-control form-control-modern"
+                                           placeholder="Enter product name (e.g., Wireless Bluetooth Headphones)" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Description" class="form-label-modern">
+                                        Product Description
+                                    </label>
+                                    <textarea asp-for="Description" rows="5"
+                                              class="form-control form-control-modern"
+                                              placeholder="Describe your product in detail..."></textarea>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Pricing -->
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="bi bi-currency-rupee"></i> Pricing & Inventory
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label asp-for="Price" class="form-label-modern">
+                                            Price (₹) <span class="text-danger">*</span>
+                                        </label>
+                                        <input asp-for="Price" type="number" step="0.01"
+                                               class="form-control form-control-modern"
+                                               placeholder="0.00" />
+                                        <span asp-validation-for="Price" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-4">
+                                        <label asp-for="Stock" class="form-label-modern">
+                                            Stock Quantity <span class="text-danger">*</span>
+                                        </label>
+                                        <input asp-for="Stock" type="number"
+                                               class="form-control form-control-modern"
+                                               placeholder="0" />
+                                        <span asp-validation-for="Stock" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="bi bi-tags"></i> Category & Image
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="CategoryId" class="form-label-modern">
+                                        Category <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="CategoryId"
+                                            asp-items="@(ViewBag.Categories as SelectList)"
+                                            class="form-select form-control-modern">
+                                        <option value="">-- Select Category --</option>
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="ImageUrl" class="form-label-modern">
+                                        Product Image URL
+                                    </label>
+                                    <input asp-for="ImageUrl"
+                                           type="url"
+                                           class="form-control form-control-modern"
+                                           id="imageUrlInput"
+                                           placeholder="https://example.com/product-image.jpg" />
+                                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+
+                                    <img id="imagePreview" class="image-preview" />
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-flex justify-content-end gap-3">
+                                <a asp-action="Dashboard"
+                                   class="btn btn-outline-secondary btn-lg">
+                                    Back to Dashboard
+                                </a>
+
+                                <button type="submit" class="btn btn-submit">
+                                    Create Product & Go Live
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const imageInput = document.getElementById('imageUrlInput');
+        const preview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('input', function () {
+            if (this.value) {
+                preview.src = this.value;
+                preview.classList.add('show');
+            } else {
+                preview.classList.remove('show');
+            }
+        });
+    </script>
+}

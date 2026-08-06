@@ -1,0 +1,67 @@
+@model IEnumerable<ShopNexa.Models.SellerProfile>
+@{
+    ViewData["Title"] = "All Sellers";
+    Layout = "_AdminLayout";
+}
+
+<div class="dashboard-header">
+    <h1>All Sellers</h1>
+    <p>View all approved sellers on the marketplace</p>
+</div>
+
+<div class="section-card">
+    @if (Model.Any())
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Owner</th>
+                    <th>Contact</th>
+                    <th>Products</th>
+                    <th>Revenue</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var seller in Model)
+                {
+                    <tr>
+                        <td><strong>@seller.CompanyName</strong></td>
+                        <td>@seller.OwnerName</td>
+                        <td>
+                            <div>@seller.Email</div>
+                            <small class="text-muted">@seller.Phone</small>
+                        </td>
+                        <td>@seller.TotalProducts</td>
+                        <td>₹@seller.TotalRevenue.ToString("N0")</td>
+                        <td>
+                            @if (seller.IsActive)
+                            {
+                                <span class="status-badge active">Active</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge inactive">Inactive</span>
+                            }
+                        </td>
+                        <td>@seller.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <a asp-action="SellerDetails" asp-route-id="@seller.Id" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-shop" style="font-size: 3rem; color: #ddd;"></i>
+            <p class="mt-3 text-muted">No sellers yet.</p>
+            <a asp-action="SellerRequests" class="btn btn-outline-primary">View Seller Requests</a>
+        </div>
+    }
+</div>

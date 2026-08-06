@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Zenith Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="brand">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Zenith Admin</span>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a asp-controller="Admin" asp-action="Dashboard" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a asp-controller="Admin" asp-action="SellerRequests" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "SellerRequests" ? "active" : "")">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Seller Requests</span>
+                </a>
+                <a asp-controller="Admin" asp-action="Sellers" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Sellers" ? "active" : "")">
+                    <i class="bi bi-shop"></i>
+                    <span>All Sellers</span>
+                </a>
+                <a asp-controller="Admin" asp-action="ManageSellers" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "ManageSellers" ? "active" : "")">
+                    <i class="bi bi-people"></i>
+                    <span>Manage Sellers</span>
+                </a>
+                <a asp-controller="Admin" asp-action="Products" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Products" ? "active" : "")">
+                    <i class="bi bi-box"></i>
+                    <span>All Products</span>
+                </a>
+                <a asp-controller="Admin" asp-action="Orders" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Orders" ? "active" : "")">
+                    <i class="bi bi-bag"></i>
+                    <span>Orders</span>
+                </a>
+                <a asp-controller="Admin" asp-action="Categories" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Categories" ? "active" : "")">
+                    <i class="bi bi-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/" class="nav-link">
+                    <i class="bi bi-house"></i>
+                    <span>Back to Store</span>
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                
+                <div class="header-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Search..." />
+                </div>
+
+                <div class="header-actions">
+                    <div class="user-menu">
+                        <span class="user-name">@User.Identity?.Name</span>
+                        <span class="badge bg-danger">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            sidebar.classList.toggle('active');
+            
+            // Toggle overlay effect on main content
+            if (sidebar.classList.contains('active')) {
+                mainContent.classList.add('sidebar-open');
+            } else {
+                mainContent.classList.remove('sidebar-open');
+            }
+        });
+        
+        // Close sidebar when clicking on overlay
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (sidebar.classList.contains('active') && 
+                !sidebar.contains(event.target) && 
+                event.target !== sidebarToggle) {
+                
+                sidebar.classList.remove('active');
+                document.querySelector('.main-content').classList.remove('sidebar-open');
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

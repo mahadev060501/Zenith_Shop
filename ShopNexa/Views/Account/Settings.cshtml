@@ -1,0 +1,165 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Account Settings";
+}
+
+<style>
+    body {
+        background: #f5f7fa;
+    }
+    .settings-container {
+        max-width: 900px;
+        margin: 40px auto;
+    }
+    .settings-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    .settings-section {
+        padding: 20px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .settings-section:last-child {
+        border-bottom: none;
+    }
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 900;
+        color: #1a1a1a;
+        margin-bottom: 20px;
+    }
+    .form-label {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        font-weight: 600;
+    }
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 40px;
+        font-weight: 700;
+        border-radius: 8px;
+    }
+    .danger-zone {
+        background: #fff5f5;
+        border: 2px solid #feb2b2;
+        border-radius: 10px;
+        padding: 20px;
+    }
+</style>
+
+<div class="container settings-container">
+    <h1 class="mb-4" style="font-weight: 900; color: #1a1a1a;">
+        <i class="bi bi-gear"></i> Account Settings
+    </h1>
+
+    <!-- Change Password Section -->
+    <div class="settings-card">
+        <div class="settings-section">
+            <h3 class="section-title">
+                <i class="bi bi-lock"></i> Change Password
+            </h3>
+            <form asp-action="ChangePassword" method="post">
+                @Html.AntiForgeryToken()
+                
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" name="currentPassword" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">New Password</label>
+                        <input type="password" name="newPassword" class="form-control" required minlength="6" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" name="confirmPassword" class="form-control" required minlength="6" />
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="bi bi-key"></i> Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Information -->
+    <div class="settings-card">
+        <div class="settings-section">
+            <h3 class="section-title">
+                <i class="bi bi-person"></i> Account Information
+            </h3>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" value="@Model.Email" disabled />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" value="@Model.UserName" disabled />
+                </div>
+            </div>
+            <div class="mt-3">
+                <a asp-action="Profile" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="settings-card">
+        <div class="settings-section">
+            <h3 class="section-title">
+                <i class="bi bi-bell"></i> Notification Preferences
+            </h3>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                <label class="form-check-label" for="emailNotifications" style="font-weight: 700;">
+                    Email Notifications
+                </label>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="orderUpdates" checked>
+                <label class="form-check-label" for="orderUpdates" style="font-weight: 700;">
+                    Order Updates
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="promotionalEmails">
+                <label class="form-check-label" for="promotionalEmails" style="font-weight: 700;">
+                    Promotional Emails
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-card danger-zone">
+        <div class="settings-section">
+            <h3 class="section-title" style="color: #c53030;">
+                <i class="bi bi-exclamation-triangle"></i> Danger Zone
+            </h3>
+            <p style="font-weight: 700; color: #666; margin-bottom: 20px;">
+                Once you delete your account, there is no going back. Please be certain.
+            </p>
+            <button class="btn btn-danger" onclick="alert('Account deletion feature coming soon!')">
+                <i class="bi bi-trash"></i> Delete Account
+            </button>
+        </div>
+    </div>
+</div>
+

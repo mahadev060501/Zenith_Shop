@@ -1,0 +1,60 @@
+@model IEnumerable<Category>
+@{
+    ViewData["Title"] = "Categories";
+    Layout = "_AdminLayout";
+}
+
+<div class="py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Categories</h2>
+        <a class="btn btn-outline-secondary" asp-action="Dashboard">Dashboard</a>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Add category</h5>
+                    <form asp-action="CreateCategory" method="post">
+                        <div class="mb-3">
+                            <label asp-for="First().Name" class="form-label">Name</label>
+                            <input name="Name" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <input name="Description" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image URL</label>
+                            <input name="ImageUrl" class="form-control" />
+                        </div>
+                        <button class="btn btn-primary" type="submit">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cat in Model)
+                            {
+                                <tr>
+                                    <td>@cat.Name</td>
+                                    <td>@cat.Description</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

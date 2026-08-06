@@ -1,0 +1,377 @@
+@model ShopNexa.Models.SellerRequest
+@{
+    ViewData["Title"] = "Application Status - Zenith Seller";
+}
+
+<section class="status-section">
+    <div class="container">
+        <div class="status-card">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Info"] != null)
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    @TempData["Info"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="status-header">
+                <h1>Seller Application Status</h1>
+                <div class="status-badge status-@Model.Status.ToLower()">
+                    @Model.Status
+                </div>
+            </div>
+
+            <div class="status-content">
+                @if (Model.Status == "Pending")
+                {
+                    <div class="status-message pending">
+                        <div class="status-icon">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <h2>Under Review</h2>
+                        <p>Your seller request has been submitted and is currently under review by our admin team.</p>
+                        <div class="status-details">
+                            <p><strong>Submitted on:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                            <p><strong>Expected review time:</strong> 1-2 business days</p>
+                        </div>
+                    </div>
+                }
+                else if (Model.Status == "Approved")
+                {
+                    <div class="status-message approved">
+                        <div class="status-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h2>Congratulations!</h2>
+                        <p>Your seller application has been approved. You can now access your seller dashboard.</p>
+                        <div class="status-details">
+                            <p><strong>Approved on:</strong> @Model.ReviewedAt?.ToString("MMMM dd, yyyy")</p>
+                        </div>
+                        <a asp-action="Dashboard" asp-controller="Seller" class="btn-dashboard">
+                            Go to Seller Dashboard
+                        </a>
+                    </div>
+                }
+                else if (Model.Status == "Rejected")
+                {
+                    <div class="status-message rejected">
+                        <div class="status-icon">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <h2>Application Rejected</h2>
+                        <p>Unfortunately, your seller application was not approved at this time.</p>
+                        @if (!string.IsNullOrEmpty(Model.AdminNotes))
+                        {
+                            <div class="rejection-reason">
+                                <strong>Reason:</strong> @Model.AdminNotes
+                            </div>
+                        }
+                        <div class="status-actions">
+                            <a asp-action="Register" asp-controller="Seller" class="btn-reapply">Submit New Request</a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="application-details">
+                <h3>Application Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Company Name</span>
+                        <span class="detail-value">@Model.CompanyName</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Owner Name</span>
+                        <span class="detail-value">@Model.OwnerName</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value">@Model.Email</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone</span>
+                        <span class="detail-value">@Model.Phone</span>
+                    </div>
+                    <div class="detail-item full-width">
+                        <span class="detail-label">Address</span>
+                        <span class="detail-value">@Model.Address</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.GSTNumber))
+                    {
+                        <div class="detail-item">
+                            <span class="detail-label">GST Number</span>
+                            <span class="detail-value">@Model.GSTNumber</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .status-section {
+        padding: 60px 0;
+        background: #f8f9fa;
+        min-height: calc(100vh - 60px);
+    }
+
+    .status-card {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    .alert-info {
+        background: #dbeafe;
+        color: #2563eb;
+        border: 1px solid #bfdbfe;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    .status-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .status-badge {
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-approved {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-content {
+        text-align: center;
+        padding: 40px 0;
+    }
+
+    .status-message {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .status-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .status-message.pending .status-icon {
+        color: #d97706;
+    }
+
+    .status-message.approved .status-icon {
+        color: #059669;
+    }
+
+    .status-message.rejected .status-icon {
+        color: #dc2626;
+    }
+
+    .status-message h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #1a1a1a;
+    }
+
+    .status-message p {
+        color: #6b7280;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .status-details {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+    .status-details p {
+        margin-bottom: 8px;
+        color: #4b5563;
+    }
+
+    .status-details p:last-child {
+        margin-bottom: 0;
+    }
+
+    .rejection-reason {
+        background: #fee2e2;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        color: #dc2626;
+    }
+
+    .btn-dashboard,
+    .btn-reapply {
+        display: inline-block;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 700;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-dashboard:hover,
+    .btn-reapply:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .status-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .btn-contact {
+        display: inline-block;
+        padding: 14px 32px;
+        background: #f3f4f6;
+        color: #4b5563;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background 0.2s ease;
+    }
+
+    .btn-contact:hover {
+        background: #e5e7eb;
+        color: #374151;
+        text-decoration: none;
+    }
+
+    .application-details {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #f3f4f6;
+    }
+
+    .application-details h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #1a1a1a;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .detail-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .detail-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        color: #1a1a1a;
+        font-weight: 600;
+    }
+
+    @@media (max-width: 768px) {
+        .status-card {
+            padding: 25px;
+        }
+
+        .status-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .status-actions {
+            flex-direction: column;
+        }
+    }
+</style>

@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Identity
+@using ShopNexa.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav ms-auto align-items-center gap-2">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Orders" asp-action="Index">Orders</a>
+    </li>
+    @if (User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Admin</a>
+        </li>
+    }
+    <li class="nav-item d-flex align-items-center">
+        <span class="text-secondary me-2">@User.Identity?.Name</span>
+        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
+            <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="btn btn-sm btn-outline-light" asp-area="Identity" asp-page="/Account/Login">Sign in</a>
+    </li>
+    <li class="nav-item">
+        <a class="btn btn-sm btn-primary" asp-area="Identity" asp-page="/Account/Register">Create account</a>
+    </li>
+}
+</ul>
+

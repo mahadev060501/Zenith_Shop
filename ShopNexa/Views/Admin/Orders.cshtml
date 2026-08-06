@@ -1,0 +1,121 @@
+@model IEnumerable<ShopNexa.Models.Order>
+@{
+    ViewData["Title"] = "All Orders";
+    Layout = "_AdminLayout";
+}
+
+<div class="dashboard-header">
+    <h1>All Orders</h1>
+    <p>Manage all marketplace orders</p>
+</div>
+
+<div class="section-card">
+    @if (Model.Any())
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Returns</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    var hasItemReturns = order.Items != null && order.Items.Any(i => !string.IsNullOrEmpty(i.ReturnStatus));
+                    var hasReturnRequest = order.Status == "Return Requested" ||
+                                           (order.Items != null && order.Items.Any(i => i.ReturnStatus == "Return Requested"));
+                    <tr>
+                        <td><strong>#@order.Id</strong></td>
+                        <td>
+                            <div>@order.CustomerName</div>
+                            <small class="text-muted">@order.Email</small>
+                        </td>
+                        <td>@order.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>@(order.Items != null ? order.Items.Count : 0) items</td>
+                        <td>₹@order.Total.ToString("N0")</td>
+                        <td>
+                            <span class="badge bg-@(order.PaymentStatus == "Paid" ? "success" : "warning")">
+                                @order.PaymentStatus
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-@order.Status.ToLower()">@order.Status</span>
+                        </td>
+                        <td>
+                            @if (order.Status == "Return Requested" || hasItemReturns)
+                            {
+                                if (order.Status == "Return Requested")
+                                {
+                                    <div>
+                                        <span class="badge bg-info">Order return requested</span>
+                                    </div>
+                                }
+
+                                if (order.Items != null)
+                                {
+                                    foreach (var item in order.Items.Where(i => !string.IsNullOrEmpty(i.ReturnStatus)))
+                                    {
+                                        <div>
+                                            <small>@(item.Product?.Name ?? "Item")</small>
+                                            <span class="status-badge @(item.ReturnStatus == "Returned"
+                                                ? "status-approved"
+                                                : item.ReturnStatus == "Return Requested"
+                                                    ? "status-pending"
+                                                    : item.ReturnStatus == "Return Rejected"
+                                                        ? "status-rejected"
+                                                        : "status-active") ms-1">
+                                                @item.ReturnStatus
+                                            </span>
+                                        </div>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">No returns</span>
+                            }
+                        </td>
+                        <td>
+                            @if (hasReturnRequest)
+                            {
+                                <div class="btn-group btn-group-sm action-btns" role="group">
+                                    <form asp-action="ApproveReturn" asp-route-id="@order.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-approve"
+                                                onclick="return confirm('Approve return for this order?');">
+                                            <i class="bi bi-check-lg"></i>
+                                            <span>Approve</span>
+                                        </button>
+                                    </form>
+                                    <form asp-action="RejectReturn" asp-route-id="@order.Id" method="post" class="d-inline ms-1">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-reject"
+                                                onclick="return confirm('Reject return request for this order?');">
+                                            <i class="bi bi-x-lg"></i>
+                                            <span>Reject</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-bag" style="font-size: 3rem; color: #ddd;"></i>
+            <p class="mt-3 text-muted">No orders found.</p>
+        </div>
+    }
+</div>

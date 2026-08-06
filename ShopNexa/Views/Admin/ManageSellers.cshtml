@@ -1,0 +1,128 @@
+@model IEnumerable<ShopNexa.Models.SellerProfile>
+@{
+    ViewData["Title"] = "Manage Sellers";
+    Layout = "_AdminLayout";
+}
+
+<div class="dashboard-header">
+    <h1>Manage Sellers</h1>
+    <p>View and manage all approved sellers</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
+    </div>
+}
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Sellers</div>
+                <div class="stat-value">@Model.Count()</div>
+            </div>
+            <div class="stat-icon blue">
+                <i class="bi bi-shop"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Active Sellers</div>
+                <div class="stat-value">@Model.Count(s => s.IsActive)</div>
+            </div>
+            <div class="stat-icon green">
+                <i class="bi bi-check-circle"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Inactive Sellers</div>
+                <div class="stat-value">@Model.Count(s => !s.IsActive)</div>
+            </div>
+            <div class="stat-icon orange">
+                <i class="bi bi-pause-circle"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sellers Table -->
+<div class="section-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Company</th>
+                <th>Owner</th>
+                <th>Contact</th>
+                <th>Products</th>
+                <th>Revenue</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var seller in Model)
+            {
+                <tr>
+                    <td>
+                        <strong>@seller.CompanyName</strong>
+                    </td>
+                    <td>@seller.OwnerName</td>
+                    <td>
+                        <div>@seller.Email</div>
+                        <small class="text-muted">@seller.Phone</small>
+                    </td>
+                    <td>@seller.TotalProducts</td>
+                    <td>₹@seller.TotalRevenue.ToString("N0")</td>
+                    <td>
+                        @if (seller.IsActive)
+                        {
+                            <span class="status-badge active">Active</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge inactive">Inactive</span>
+                        }
+                    </td>
+                    <td>@seller.CreatedAt.ToString("MMM dd, yyyy")</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a asp-action="SellerDetails" asp-route-id="@seller.Id" class="btn btn-outline-primary">View</a>
+                            <form asp-action="ToggleSellerStatus" asp-route-id="@seller.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn @(seller.IsActive ? "btn-outline-warning" : "btn-outline-success")"
+                                        onclick="return confirm('@(seller.IsActive ? "Deactivate" : "Activate") this seller?');">
+                                    @(seller.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                            </form>
+                            <form asp-action="DeleteSeller" asp-route-id="@seller.Id" method="post" class="d-inline ms-1">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger"
+                                        onclick="return confirm('Remove seller @(seller.CompanyName)? They will be reverted to customer role.');">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

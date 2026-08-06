@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Zenith</title>
+
+    @inject Microsoft.AspNetCore.Identity.UserManager<ShopNexa.Models.ApplicationUser> _userManager
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+
+    <!-- Google Font - Modern Clean Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ShopNexa.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+    <!-- MINIMAL TOP NAVBAR -->
+    <header class="zenith-header">
+        <div class="container">
+            <div class="zenith-nav">
+                <!-- Left: Menu Toggle -->
+                <button class="menu-toggle" id="sidebarToggle" aria-label="Open menu">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <!-- Center: Logo -->
+                <a class="zenith-logo" asp-controller="Home" asp-action="Index">
+                    ZENITH
+                </a>
+
+                <!-- Right: Icons -->
+                <div class="zenith-icons">
+                    <!-- Cart -->
+                    <a class="icon-btn" asp-controller="Cart" asp-action="Index" aria-label="Cart">
+                        <i class="bi bi-bag"></i>
+                        <span id="cartCount" class="cart-badge" style="display:none;">0</span>
+                    </a>
+
+                    <!-- Profile -->
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown">
+                            <button class="icon-btn dropdown-toggle" data-bs-toggle="dropdown" aria-label="Profile">
+                                <i class="bi bi-person"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li class="dropdown-item-text small text-muted">
+                                    <strong>@User.Identity?.Name</strong>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">My Profile</a></li>
+                                <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">Orders</a></li>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Admin Dashboard</a></li>
+                                }
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post">
+                                        <button type="submit" class="dropdown-item">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="icon-btn" asp-controller="Account" asp-action="Login" aria-label="Login">
+                            <i class="bi bi-person"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR DRAWER -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">MENU</span>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
+            </a>
+            <a class="sidebar-link" asp-controller="Products" asp-action="Index">
+                <i class="bi bi-grid"></i>
+                <span>Products</span>
+            </a>
+            <a class="sidebar-link" asp-controller="Cart" asp-action="Index">
+                <i class="bi bi-bag"></i>
+                <span>Cart</span>
+            </a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="sidebar-link" asp-controller="Admin" asp-action="Dashboard">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Admin Dashboard</span>
+                    </a>
+                }
+                else if (User.IsInRole("Seller"))
+                {
+                    <a class="sidebar-link" asp-controller="Seller" asp-action="Dashboard">
+                        <i class="bi bi-shop"></i>
+                        <span>Seller Dashboard</span>
+                    </a>
+                }
+                else
+                {
+                    <a class="sidebar-link" asp-controller="Seller" asp-action="BecomeSeller">
+                        <i class="bi bi-shop"></i>
+                        <span>Become a Seller</span>
+                    </a>
+                }
+            }
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="sidebar-divider"></div>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="sidebar-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <button type="submit" class="sidebar-logout">Logout</button>
+                </form>
+            }
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="zenith-main">
+        @RenderBody()
+    </main>
+
+    <!-- MINIMAL FOOTER -->
+    <footer class="zenith-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h5>Zenith</h5>
+                    <p>Premium essentials for modern lifestyle.</p>
+                </div>
+                <div class="footer-section">
+                    <h6>Quick Links</h6>
+                    <a asp-controller="Home" asp-action="Index">Home</a>
+                    <a asp-controller="Products" asp-action="Index">Products</a>
+                </div>
+                <div class="footer-section">
+                    <h6>Contact</h6>
+                    <p><i class="bi bi-envelope"></i> mahadev010506@gmail.com</p>
+                    <p><i class="bi bi-phone"></i> +91 7822002380</p>
+                </div>
+            </div>
+            <div class="footer-bottom-bar">
+                <span>&copy; 2026 Zenith Shop</span>
+                <span class="footer-demo-notice">Demo site - Orders not processed</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Sidebar Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+
+            function openSidebar() {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            sidebarToggle.addEventListener('click', openSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeSidebar();
+            });
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

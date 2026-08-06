@@ -1,0 +1,149 @@
+@{
+    ViewData["Title"] = "Role Switch (Dev Only)";
+    var currentUser = ViewBag.CurrentUser as string;
+    var currentRoles = ViewBag.CurrentRoles as List<string> ?? new List<string>();
+}
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        padding: 30px;
+    }
+    .role-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    .role-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+    }
+    .role-card.selected {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+    .warning-box {
+        background: rgba(255, 193, 7, 0.2);
+        border: 2px solid #ffc107;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card">
+                <div class="warning-box">
+                    <h5 class="text-warning"><i class="bi bi-exclamation-triangle"></i> Development Only</h5>
+                    <p class="mb-0">This feature is only available in development mode. It will be disabled in production.</p>
+                </div>
+
+                <h2 class="mb-4"><i class="bi bi-person-badge"></i> Role Switch</h2>
+                
+                <div class="mb-4">
+                    <p><strong>Current User:</strong> @currentUser</p>
+                    <p><strong>Current Roles:</strong> 
+                        @if (currentRoles.Any())
+                        {
+                            @string.Join(", ", currentRoles)
+                        }
+                        else
+                        {
+                            <span class="text-muted">None</span>
+                        }
+                    </p>
+                </div>
+
+                <hr />
+
+                <h5 class="mb-3">Select Role to Switch To:</h5>
+                
+                <form asp-action="SwitchRole" method="post" id="roleSwitchForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="role-card" data-role="User">
+                        <div class="d-flex align-items-center">
+                            <input type="radio" name="role" value="User" id="user" class="form-check-input me-3" />
+                            <i class="bi bi-person" style="font-size: 2rem; color: #667eea; margin-right: 15px;"></i>
+                            <div>
+                                <label for="user" class="form-label mb-0 fw-bold">User</label>
+                                <p class="mb-0 small text-muted">Standard customer role</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-card" data-role="Seller">
+                        <div class="d-flex align-items-center">
+                            <input type="radio" name="role" value="Seller" id="seller" class="form-check-input me-3" />
+                            <i class="bi bi-shop-window" style="font-size: 2rem; color: #28a745; margin-right: 15px;"></i>
+                            <div>
+                                <label for="seller" class="form-label mb-0 fw-bold">Seller</label>
+                                <p class="mb-0 small text-muted">Seller role (will be auto-approved in dev mode)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="role-card" data-role="Admin">
+                        <div class="d-flex align-items-center">
+                            <input type="radio" name="role" value="Admin" id="admin" class="form-check-input me-3" />
+                            <i class="bi bi-shield-check" style="font-size: 2rem; color: #dc3545; margin-right: 15px;"></i>
+                            <div>
+                                <label for="admin" class="form-label mb-0 fw-bold">Admin</label>
+                                <p class="mb-0 small text-muted">Administrator role with full access</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('Are you sure you want to switch roles? You will need to log out and log back in for changes to take effect.');">
+                            <i class="bi bi-arrow-repeat"></i> Switch Role
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            });
+        });
+
+        document.querySelectorAll('input[name="role"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+                const card = this.closest('.role-card');
+                if (card) card.classList.add('selected');
+            });
+        });
+    </script>
+}
+
+
+
+
+
+
+

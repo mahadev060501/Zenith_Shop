@@ -1,0 +1,114 @@
+@model IEnumerable<ShopNexa.Models.SellerRequest>
+@{
+    ViewData["Title"] = "Seller Requests";
+    Layout = "_AdminLayout";
+}
+
+<div class="dashboard-header">
+    <h1>Seller Requests</h1>
+    <p>Review and manage seller applications</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
+    </div>
+}
+
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+    <button class="tab-btn active" data-filter="all">All Requests</button>
+    <button class="tab-btn" data-filter="pending">Pending (@Model.Count(r => r.Status == "Pending"))</button>
+    <button class="tab-btn" data-filter="approved">Approved (@Model.Count(r => r.Status == "Approved"))</button>
+    <button class="tab-btn" data-filter="rejected">Rejected (@Model.Count(r => r.Status == "Rejected"))</button>
+</div>
+
+<!-- Requests Table -->
+<div class="section-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Company</th>
+                <th>Owner</th>
+                <th>Contact</th>
+                <th>GST</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var request in Model)
+            {
+                <tr data-status="@request.Status.ToLower()">
+                    <td>
+                        <strong>@request.CompanyName</strong>
+                    </td>
+                    <td>@request.OwnerName</td>
+                    <td>
+                        <div>@request.Email</div>
+                        <small class="text-muted">@request.Phone</small>
+                    </td>
+                    <td>@(string.IsNullOrEmpty(request.GSTNumber) ? "N/A" : request.GSTNumber)</td>
+                    <td>@request.CreatedAt.ToString("MMM dd, yyyy")</td>
+                    <td>
+                        <span class="status-badge status-@request.Status.ToLower()">@request.Status</span>
+                    </td>
+                    <td>
+                        @if (request.Status == "Pending")
+                        {
+                            <div class="btn-group btn-group-sm" role="group">
+                                <form asp-action="ApproveSellerRequest" asp-route-id="@request.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success"
+                                            onclick="return confirm('Approve this seller? They will be able to sell on the marketplace.');">
+                                        Approve
+                                    </button>
+                                </form>
+                                <form asp-action="RejectSeller" asp-route-id="@request.Id" method="post" class="d-inline ms-1">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="adminNotes" value="" />
+                                    <button type="submit" class="btn btn-outline-danger"
+                                            onclick="return confirm('Reject this seller request?');">
+                                        Reject
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Filter tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.dataset.filter;
+            document.querySelectorAll('tbody tr').forEach(row => {
+                if (filter === 'all' || row.dataset.status === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>

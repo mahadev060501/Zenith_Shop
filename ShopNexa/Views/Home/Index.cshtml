@@ -1,0 +1,82 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- PREMIUM HERO SECTION -->
+<section class="brand-hero">
+    <!-- Background Image with Overlay -->
+    <div class="brand-hero-bg">
+        <div class="brand-hero-overlay"></div>
+    </div>
+    
+    <!-- Hero Content -->
+    <div class="brand-hero-content">
+        <h1 class="brand-hero-title">Zenith</h1>
+        <p class="brand-hero-description">
+            Crafted for modern lifestyles. Premium essentials designed for everyday excellence. 
+            Built with quality, simplicity, and confidence.
+        </p>
+        <a asp-controller="Products" asp-action="Index" class="brand-hero-btn">
+            Shop Now
+        </a>
+    </div>
+    
+    <!-- Featured Product Visuals -->
+    @if (Model.FeaturedProducts.Any())
+    {
+        <div class="brand-hero-products">
+            @foreach (var product in Model.FeaturedProducts.Take(2))
+            {
+                <div class="hero-product-card">
+                    @if (!string.IsNullOrEmpty(product.ImageUrl))
+                    {
+                        <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
+                    }
+                    else
+                    {
+                        <div class="hero-product-placeholder">
+                            <i class="bi bi-image"></i>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="zenith-features">
+    <div class="container">
+        <div class="zenith-features-grid">
+            <div class="zenith-feature">
+                <div class="zenith-feature-icon">
+                    <i class="bi bi-award"></i>
+                </div>
+                <h3>Premium Quality</h3>
+                <p>Curated products built to last</p>
+            </div>
+            <div class="zenith-feature">
+                <div class="zenith-feature-icon">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <h3>Fast Shipping</h3>
+                <p>Quick delivery to your doorstep</p>
+            </div>
+            <div class="zenith-feature">
+                <div class="zenith-feature-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3>Secure Payments</h3>
+                <p>100% secure checkout</p>
+            </div>
+            <div class="zenith-feature">
+                <div class="zenith-feature-icon">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <h3>Easy Returns</h3>
+                <p>Hassle-free return policy</p>
+            </div>
+        </div>
+    </div>
+</section>

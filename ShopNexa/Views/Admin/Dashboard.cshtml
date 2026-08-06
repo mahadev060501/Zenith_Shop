@@ -1,0 +1,138 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="dashboard-header">
+    <h1>Admin Dashboard</h1>
+    <p>Overview of your marketplace</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value">@ViewBag.ProductCount</div>
+            </div>
+            <div class="stat-icon blue">
+                <i class="bi bi-box"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value">@ViewBag.OrderCount</div>
+            </div>
+            <div class="stat-icon green">
+                <i class="bi bi-bag"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Pending Orders</div>
+                <div class="stat-value">@ViewBag.PendingOrders</div>
+            </div>
+            <div class="stat-icon orange">
+                <i class="bi bi-clock"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Categories</div>
+                <div class="stat-value">@ViewBag.CategoryCount</div>
+            </div>
+            <div class="stat-icon purple">
+                <i class="bi bi-tags"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Pending Seller Requests</div>
+                <div class="stat-value">@ViewBag.PendingSellerRequests</div>
+            </div>
+            <div class="stat-icon red">
+                <i class="bi bi-person-plus"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Sellers</div>
+                <div class="stat-value">@ViewBag.TotalSellers</div>
+            </div>
+            <div class="stat-icon purple">
+                <i class="bi bi-shop"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Total Returned</div>
+                <div class="stat-value">@ViewBag.TotalReturned</div>
+            </div>
+            <div class="stat-icon blue">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-label">Return Requests (Pending)</div>
+                <div class="stat-value">@ViewBag.PendingReturnRequests</div>
+            </div>
+            <div class="stat-icon orange">
+                <i class="bi bi-clock-history"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="section-card">
+    <div class="section-header">
+        <h2 class="section-title">Quick Actions</h2>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <a asp-action="CreateProduct" class="btn btn-outline-primary w-100 py-3">
+                <i class="bi bi-plus-lg"></i> Add Product
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-action="SellerRequests" class="btn btn-outline-success w-100 py-3">
+                <i class="bi bi-person-plus"></i> Seller Requests
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-action="ManageSellers" class="btn btn-outline-info w-100 py-3">
+                <i class="bi bi-shop"></i> Manage Sellers
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-action="Orders" class="btn btn-outline-warning w-100 py-3">
+                <i class="bi bi-bag"></i> View Orders
+            </a>
+        </div>
+        @if (ViewBag.PendingReturnRequests != null && (int)ViewBag.PendingReturnRequests > 0)
+        {
+            <div class="col-md-3">
+                <a asp-action="Orders" class="btn btn-outline-info w-100 py-3">
+                    <i class="bi bi-arrow-counterclockwise"></i> Return Requests (@ViewBag.PendingReturnRequests)
+                </a>
+            </div>
+        }
+    </div>
+</div>

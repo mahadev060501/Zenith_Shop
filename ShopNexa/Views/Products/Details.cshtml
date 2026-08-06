@@ -1,0 +1,108 @@
+@model Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<section class="product-detail-layout">
+    <div class="container">
+        <div class="row gy-4 align-items-start">
+            <div class="col-12 col-lg-6">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="ratio ratio-4x3 surface">
+                        <img src="@Model.ImageUrl" class="w-100 h-100 object-fit-cover" alt="@Model.Name" />
+                    </div>
+                }
+                else
+                {
+                    <div class="surface d-flex align-items-center justify-content-center" style="min-height: 320px;">
+                        <i class="bi bi-image text-muted" style="font-size: 2.5rem;"></i>
+                    </div>
+                }
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="product-detail-card">
+                    @if (!string.IsNullOrWhiteSpace(Model.Category?.Name))
+                    {
+                        <span class="badge-soft badge-soft-success mb-2">
+                            @Model.Category.Name
+                        </span>
+                    }
+
+                    <h1 class="mb-2">@Model.Name</h1>
+
+                    <div class="d-flex flex-wrap align-items-baseline gap-3 mb-3">
+                        @if (Model.OriginalPrice.HasValue && Model.OriginalPrice > Model.Price)
+                        {
+                            var discountPercent = (int)(((Model.OriginalPrice.Value - Model.Price) / Model.OriginalPrice.Value) * 100);
+                            <span class="product-detail-price">₹@Model.Price.ToString("N2")</span>
+                            <span class="product-detail-price-old">₹@Model.OriginalPrice.Value.ToString("N2")</span>
+                            <span class="badge-soft badge-soft-success">@discountPercent% off</span>
+                        }
+                        else
+                        {
+                            <span class="product-detail-price">₹@Model.Price.ToString("N2")</span>
+                        }
+
+                        @if (Model.Stock > 10)
+                        {
+                            <span class="badge-soft badge-soft-success">
+                                In stock • @Model.Stock available
+                            </span>
+                        }
+                        else if (Model.Stock > 0)
+                        {
+                            <span class="badge-soft badge-soft-warning">
+                                Low stock • @Model.Stock left
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge-soft badge-soft-danger">
+                                Out of stock
+                            </span>
+                        }
+                    </div>
+
+                    <p class="product-detail-description mb-4">
+                        @Model.Description
+                    </p>
+
+                    @if (Model.Stock > 0)
+                    {
+                        <form asp-controller="Cart" asp-action="Add" method="post" class="row g-2 align-items-center mb-3" data-add-to-cart="true">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <div class="col-auto">
+                                <label class="form-label mb-0" for="quantity">Quantity</label>
+                            </div>
+                            <div class="col-auto" style="max-width: 120px;">
+                                <input type="number"
+                                       class="form-control"
+                                       id="quantity"
+                                       name="quantity"
+                                       value="1"
+                                       min="1"
+                                       max="@Model.Stock" />
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    Add to cart
+                                </button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-secondary btn-lg w-100 mb-3" disabled>
+                            Out of stock
+                        </button>
+                    }
+
+                    <p class="product-detail-meta mb-0">
+                        Orders, payments, and refunds for this item reuse the same clean layout across the rest of the site.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

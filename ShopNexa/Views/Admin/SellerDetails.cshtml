@@ -1,0 +1,87 @@
+@{
+    ViewData["Title"] = "Seller Details";
+    Layout = "_AdminLayout";
+}
+
+@model ShopNexa.Models.SellerProfile
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Seller Details</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">ID</dt>
+                    <dd class="col-sm-9">@Model.Id</dd>
+
+                    <dt class="col-sm-3">Company Name</dt>
+                    <dd class="col-sm-9">@Model.CompanyName</dd>
+
+                    <dt class="col-sm-3">Owner Name</dt>
+                    <dd class="col-sm-9">@Model.OwnerName</dd>
+
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+
+                    <dt class="col-sm-3">Phone</dt>
+                    <dd class="col-sm-9">@Model.Phone</dd>
+
+                    <dt class="col-sm-3">Address</dt>
+                    <dd class="col-sm-9">@Model.Address</dd>
+
+                    <dt class="col-sm-3">GST Number</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.GSTNumber) ? "Not Provided" : Model.GSTNumber)</dd>
+
+                    <dt class="col-sm-3">Bank Account Details</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.BankAccountDetails) ? "Not Provided" : Model.BankAccountDetails)</dd>
+
+                    <dt class="col-sm-3">Created At</dt>
+                    <dd class="col-sm-9">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-3">Last Updated</dt>
+                    <dd class="col-sm-9">@(Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</dd>
+
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">User Account</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.User != null)
+                        {
+                            <text>@Model.User.Email (@Model.User.FullName)</text>
+                        }
+                        else
+                        {
+                            <span class="text-muted">User account not found</span>
+                        }
+                    </dd>
+                </dl>
+
+                <div class="mt-3">
+                    <a href="@Url.Action("ManageSellers", "Admin")" class="btn btn-secondary">Back to Sellers List</a>
+                    <form asp-action="ToggleSellerStatus" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-warning ml-2">
+                            @(Model.IsActive ? "Deactivate Seller" : "Activate Seller")
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+    <!-- /.col -->
+</div>
